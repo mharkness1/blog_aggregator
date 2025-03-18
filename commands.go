@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/mharkness1/blog_aggregator/internal/api"
 	"github.com/mharkness1/blog_aggregator/internal/database"
 )
 
@@ -91,5 +92,31 @@ func deleteAllUsers(s *state, cmd command) error {
 	if err != nil {
 		return fmt.Errorf("delete all users failed: %w", err)
 	}
+	return nil
+}
+
+func getUsers(s *state, cmd command) error {
+	users, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("error in getting users: %w", err)
+	}
+
+	for _, user := range users {
+		if user.Name == s.cfg.CurrentUser {
+			fmt.Printf("%s (current)\n", user.Name)
+		} else {
+			fmt.Printf("%s\n", user.Name)
+		}
+	}
+
+	return nil
+}
+
+func aggregate(s *state, cmd command) error {
+	result, err := api.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return fmt.Errorf("error getting feed: %w", err)
+	}
+	fmt.Print(result)
 	return nil
 }
