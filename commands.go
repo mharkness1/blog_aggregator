@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/mharkness1/blog_aggregator/internal/api"
 	"github.com/mharkness1/blog_aggregator/internal/database"
 )
@@ -269,8 +271,62 @@ func scrapeFeeds(s *state) error {
 	fmt.Printf("Channel Title: %s\n", result.Channel.Title)
 	for _, item := range result.Channel.Item {
 		fmt.Printf("%s\n", item.Title)
-	}
 
+		//Check item.Description
+		var description sql.NullString
+		if item.Description != "" {
+			description = sql.NullString{
+				String: item.Description,
+				Valid:  true, // Mark as valid because we have a non-empty description
+			}
+		} else {
+			description = sql.NullString{
+				String: "",
+				Valid:  false, // Mark as invalid to represent a NULL value
+			}
+		}
+
+		// Check and parse item.PubDate
+		var pubDate sql.NullTime
+		if item.PubDate != "" {
+			parsedTime, err := time.Parse(time.RFC1123Z, item.PubDate)
+			if err != nil {
+				fmt.Printf("error parsing PubDate (%s): %v\n", item.PubDate, err)
+				continue // Skip if parsing fails
+			}
+			pubDate = sql.NullTime{
+				Time:  parsedTime,
+				Valid: true, // Mark this as a valid time
+			}
+		} else {
+			pubDate = sql.NullTime{
+				Time:  time.Time{}, // Empty time value
+				Valid: false,       // Mark this as invalid (NULL)
+			}
+		}
+
+		_, err = s.db.CreatePost(context.Background(), database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now().UTC(),
+			UpdatedAt:   time.Now().UTC(),
+			Title:       item.Title,
+			Url:         item.Link,
+			Description: description,
+			PublishedAt: pubDate,
+			FeedID:      feedFetch.ID,
+		})
+
+		if err != nil {
+			var pqErr *pq.Error
+			if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+				// 23505 is PostgreSQL's error code for unique_violation
+				fmt.Printf("duplicate post ignored (URL: %s)\n", item.Link)
+				continue
+			}
+			fmt.Printf("error saving post (URL: %s): %v\n", item.Link, err)
+			continue
+		}
+	}
 	return nil
 }
 
