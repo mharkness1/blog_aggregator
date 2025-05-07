@@ -1,10 +1,10 @@
 # blog_aggregator
 
-# Overview
+## Overview
 
 This is a multi-user cli tool for aggregating RSS feeds and storing their details/content. It was built as part of an introduction to Go course provided by boot.dev
 
-# Set-up
+## Set-up
 
 
 
