@@ -12,17 +12,17 @@ This is a multi-user cli tool for aggregating RSS feeds and storing their detail
 
 | Command | Description |
 | --- | ----------- |
-| login |  |
-| register |  |
-| reset |  |
-| users |  |
-| agg |  |
-| addfeed |  |
-| feeds |  |
-| follow |  |
-| following |  |
-| unfollow |  |
-| browse |  |
+| ``login`` |  |
+| ``register`` |  |
+| ``reset`` |  |
+| ``users`` |  |
+| ``agg`` |  |
+| ``addfeed`` |  |
+| ``feeds`` |  |
+| ``follow`` |  |
+| ``following`` |  |
+| ``unfollow`` |  |
+| ``browse`` |  |
 
 
 gator needs: psql and go installed.
