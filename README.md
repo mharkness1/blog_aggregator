@@ -4,18 +4,20 @@
 
 This is a multi-user cli tool for aggregating RSS feeds and storing their details/content. It was built as part of an introduction to Go course provided by boot.dev
 
+The tool tracks various users, and one must `register` and `login` to use the tracker. It keeps master records of all subscribed feeds, as well as returning those for particular users.
+
 ## Set-up
 
 
 
-# Available Commands
+## Available Commands
 
 | Command | Description |
 | --- | ----------- |
-| ``login`` |  |
-| ``register`` |  |
-| ``reset`` |  |
-| ``users`` |  |
+| ``login`` | login <username> |
+| ``register`` | register <username> |
+| ``reset`` | reset - deletes all users, ideal for testing! |
+| ``users`` | users - returns a list of all registered users |
 | ``agg`` |  |
 | ``addfeed`` |  |
 | ``feeds`` |  |
@@ -43,7 +45,7 @@ Add more detail.
 	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 	cmds.register("browse", middlewareLoggedIn(handlerGetPostsForUser))
 
-# Future Extensions
+## Future Extensions
 
 - Add sorting and filtering options to the browse command
 - Add pagination to the browse command
